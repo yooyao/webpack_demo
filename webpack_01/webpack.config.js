@@ -31,8 +31,10 @@ module.exports = {
     entry:'./src/index.js',  //打包入口
     output:{
         filename:'bundle.js', //默认是main.js
-        path : path.resolve(__dirname,'build') //打包文件放置的路径，默认放在./dist文件夹下
+        path : path.resolve(__dirname,'build'), //打包文件放置的路径，默认放在./dist文件夹下
         //路径必须是一个绝对路径，这里利用node核心模块path，将相对路径转化成绝对路径
+        //publicPath:'http://www.xxxcdn.com'  //给所有的打包资源加一个公共路径
+        
     },
     externals: { 
         jquery:'$'
@@ -48,7 +50,7 @@ module.exports = {
             //   }
         }),
         new MiniCssExtractPlugin({
-            filename:'style/main.css'
+            filename:'css/main.css',
         }),
         // new Webpack.ProvidePlugin({
         //     $:'jquery' 
@@ -63,6 +65,28 @@ module.exports = {
             // 顺序默认从右到左
             // 也可以写成对象方式，这样一来方便传入其他参数
 
+            //file-loader处理图片打包，引用图片需要在js文件中使用import或者require引入
+            // {
+            //     test:/\.(png|jpg|gif)$/,
+            //     use:'file-loader'
+            // },
+            //url-loader,做一个限制当我们的图片小于多少k的时候就用base64来转化图片，这样就不用在加载图片的时候发起请求
+            //否则就自动变成file-loader来产生真实的图片，在加载网页的时候发起请求
+            {
+                test:/\.(png|jpg|gif)$/,
+                use:{
+                    loader:'url-loader',
+                    options:{
+                        limit:1, //300*1024   //表示300k
+                        outputPath:'/img/',  //把打包出来的图片路径写成绝对路径，可以避免使用相对路径导致的引用错误
+                        publicPath:'http://www.xxxcdn.com'  //只给图片加一个cdn路径前缀
+                    }
+                }
+            },
+            {
+                test: /\.html$/,
+                use: 'html-withimg-loader'
+            },
             // {
             //     test:require.resolve('jquery'),
             //     //使用require.resolve函数来查询某个模块文件的带有完整绝对路径的文件名
@@ -81,7 +105,7 @@ module.exports = {
                     //         // insertAt:"top" //将css插入在head标签的最顶头的位置，这样可以防止自定义style被覆盖
                     //     }
                     // }, 
-                    MiniCssExtractPlugin.loader,
+                    MiniCssExtractPlugin.loader,   //插件使得css以文件的形式抽离出来，而不是直接插入到style标签中
                     'css-loader',
                     // css-loader 用来解析@import这种语法
                     'postcss-loader'  //给新的css属性加上前缀,为啥没有实现???

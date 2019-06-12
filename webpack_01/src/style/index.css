@@ -1,5 +1,8 @@
 @import './a.css';
 h4{
+    width: 400px;
+    height: 300px;
     border: 1px solid #dadade;
+    background: url("../image/img0.png");
     transform: rotate(20deg);
-  }
+}
